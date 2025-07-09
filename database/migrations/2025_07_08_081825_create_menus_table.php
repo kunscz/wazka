@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('label');
             $table->string('icon')->nullable();
             $table->string('route_name')->nullable();
+            $table->string('url')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('menus')->onDelete('cascade');
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_manual')->default(false);
             $table->timestamps();
         });
     }

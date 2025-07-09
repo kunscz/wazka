@@ -4,56 +4,38 @@ namespace App\Modules\Core\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Models\Menu;
+use App\Modules\Core\Services\MenuService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MenuController extends Controller
 {
-    public function index()
+    public function __construct(protected MenuService $menus) {}
+
+    public function tree()
     {
-        $menus = Menu::with('permissions', 'children')->whereNull('parent_id')->get();
-        return response()->json($menus);
+        return response()->json($this->menus->getTree());
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'label' => 'required|string',
-            'icon' => 'nullable|string',
-            'route_name' => 'nullable|string',
-            'parent_id' => 'nullable|exists:menus,id',
-            'sort_order' => 'integer',
-            'is_active' => 'boolean',
-            'permission_ids' => 'array',
-        ]);
+        $menu = $this->menus->createFromRequest($request);
+        $this->menus->syncPermission($menu);
 
-        $menu = Menu::create($data);
-        $menu->permissions()->sync($data['permission_ids'] ?? []);
-
-        return response()->json(['message' => 'Menu created', 'menu' => $menu]);
+        return response()->json($menu);
     }
 
     public function update(Request $request, Menu $menu)
     {
-        $data = $request->validate([
-            'label' => 'required|string',
-            'icon' => 'nullable|string',
-            'route_name' => 'nullable|string',
-            'parent_id' => 'nullable|exists:menus,id',
-            'sort_order' => 'integer',
-            'is_active' => 'boolean',
-            'permission_ids' => 'array',
-        ]);
+        $menu = $this->menus->updateFromRequest($request, $menu);
+        $this->menus->syncPermission($menu);
 
-        $menu->update($data);
-        $menu->permissions()->sync($data['permission_ids'] ?? []);
-
-        return response()->json(['message' => 'Menu updated', 'menu' => $menu]);
+        return response()->json($menu);
     }
 
     public function destroy(Menu $menu)
     {
-        $menu->delete();
+        $this->menus->delete($menu);
         return response()->json(['message' => 'Menu deleted']);
     }
-
 }

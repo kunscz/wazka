@@ -1,0 +1,94 @@
+<?php
+
+namespace App\Modules\Core\Services;
+
+use Illuminate\Http\Request;
+use App\Modules\Core\Models\Menu;
+use App\Modules\Core\Models\Permission;
+
+class MenuService
+{
+   /**
+    * Build nested menu tree with children
+   */
+   public function getTree()
+   {
+      return Menu::with('children')
+         ->whereNull('parent_id')
+         ->orderBy('sort_order')
+         ->get();
+   }
+
+   /**
+    * Create menu from validated request input
+   */
+   public function createFromRequest(Request $request): Menu
+   {
+      $data = $request->validate([
+         'label' => 'required|string|max:255',
+         'route_name' => 'nullable|string',
+         'url' => 'nullable|string',
+         'icon' => 'nullable|string',
+         'sort_order' => 'nullable|integer',
+         'parent_id' => 'nullable|integer|exists:menus,id',
+         'is_active' => 'boolean',
+         'is_manual' => 'boolean',
+      ]);
+
+      $data['icon'] = $data['icon'] ?? 'mdi-file';
+      $data['sort_order'] = $data['sort_order'] ?? 99;
+
+      return Menu::create($data);
+   }
+
+   /**
+    * Update menu with validated input
+   */
+   public function updateFromRequest(Request $request, Menu $menu): Menu
+   {
+      $data = $request->validate([
+         'label' => 'required|string|max:255',
+         'route_name' => 'nullable|string',
+         'url' => 'nullable|string',
+         'icon' => 'nullable|string',
+         'sort_order' => 'nullable|integer',
+         'parent_id' => 'nullable|integer|exists:menus,id',
+         'is_active' => 'boolean',
+         'is_manual' => 'boolean',
+      ]);
+
+      $menu->update($data);
+
+      return $menu;
+   }
+
+   /**
+    * Delete menu safely
+   */
+   public function delete(Menu $menu): void
+   {
+      $menu->delete();
+   }
+
+   public function syncPermission(Menu $menu): void
+   {
+      if (!$menu->route_name) return;
+
+      // Normalize route into permission
+      $segments = explode('.', $menu->route_name);
+      if (count($segments) < 2) return;
+
+      $action = $segments[array_key_last($segments)];
+      $resource = $segments[count($segments) - 2];
+      $label = "{$action} {$resource}";
+
+      $permission = Permission::firstOrCreate([
+         'name' => $label,
+      ], [
+         'description' => "Can {$action} {$resource}",
+      ]);
+
+      $menu->permissions()->syncWithoutDetaching([$permission->id]);
+   }
+
+}

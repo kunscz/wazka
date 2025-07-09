@@ -130,10 +130,12 @@ class SyncMenusAndPermissions extends Command
                     $this->line("🔗 $modeTag Would link permission \"$permissionName\" to \"$module\"");
                 }
             } else {
-                $moduleMenu = Menu::firstOrCreate(
-                    ['label' => $module, 'parent_id' => null],
-                    ['icon' => 'mdi-folder', 'sort_order' => 10, 'is_active' => true],
-                );
+                $moduleMenu = Menu::firstOrCreate(['label' => $module, 'parent_id' => null], [
+                    'icon' => 'mdi-folder',
+                    'sort_order' => 10,
+                    'is_active' => true,
+                    'is_manual' => false
+                ],);
 
                 if($isFlatRoute) {
                     $permission = Permission::where('name', $permissionName)->first();
@@ -150,7 +152,7 @@ class SyncMenusAndPermissions extends Command
                 } else {
                     $resourceMenu = Menu::firstOrCreate(
                         ['label' => $resource, 'parent_id' => $moduleMenu->id],
-                        ['icon' => $icon]
+                        ['icon' => $icon, 'is_manual' => false]
                     );
                 }
             }
@@ -172,6 +174,7 @@ class SyncMenusAndPermissions extends Command
                             'parent_id' => $parentId,
                             'sort_order' => 99,
                             'is_active' => true,
+                            'is_manual' => false
                         ]);
 
                         $permission = Permission::where('name', $permissionName)->first();

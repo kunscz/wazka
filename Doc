@@ -1,0 +1,68 @@
+🚀 Features
+- ✅ Modular architecture (modules/Core, modules/Crm, etc.)
+- ✅ Dynamic named routes (module.resource.action convention)
+- ✅ Auto-sync command for menus and permissions
+- ✅ Manual menu entries for static/external links
+- ✅ Fine-grained RBAC tied to route structure
+
+🔧 sync:menus Artisan Command
+This command scans all named routes and generates:
+- 📁 Hierarchical menus (Module → Resource → Action)
+- 🔐 Permissions from route actions (e.g. view users)
+- 🔗 Menu-permission links for role-based rendering
+🛠 Usage:
+php artisan sync:menus
+
+
+✨ Flags:
+| Flag | Description | 
+| --dry-run | Preview sync without saving to the database | 
+| --only-index | Only generate menu items for index, show, view actions | 
+| Combined | php artisan sync:menus --dry-run --only-index | 
+
+
+✅ Route Naming Format:
+module.resource.action
+
+
+Examples:
+- core.users.create → Core → Users → Create
+- dashboard → Dashboard (auto-fallback to view)
+- crm.pipeline.index → CRM → Pipeline → Index
+All permissions use syntax like create users, view dashboard, etc.
+
+
+📁 Menu Management (Manual Entries)
+You can manually seed menus for:
+- External links (url)
+- Static pages (route_name)
+- Custom sections (parent_id)
+Seeder Example:
+Menu::updateOrCreate([
+    'label' => 'Documentation',
+    'url' => 'https://docs.myapp.com',
+    'is_manual' => true,
+], [
+    'icon' => 'mdi-book-open',
+    'sort_order' => 99,
+    'is_active' => true,
+]);
+
+
+Manual menus are preserved and excluded from sync:menus overwrite logic.
+
+
+🎛️ Frontend Menu Manager (Coming Soon)
+The MenuManager.vue panel will support:
+- 📋 Menu listing & hierarchy
+- ✏️ Add/edit manual menu entries
+- 📎 Route or URL link options
+- 🖼️ Icon selection
+- 🔗 Permission mapping
+- 🧱 Drag-and-drop nesting
+
+📦 Future Enhancements
+- Config file: config/menu-sync.php for icon map and route filters
+- API endpoint: GET /api/menus/tree for frontend menu rendering
+- Route auditor: php artisan audit:routes to check naming consistency
+- Slack or log sync summary on deploy

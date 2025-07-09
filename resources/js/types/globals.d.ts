@@ -1,4 +1,18 @@
+import type Pusher from "pusher-js";
 import { AppPageProps } from '@/types/index';
+import type { route as routeFn } from 'ziggy-js';
+import { AxiosInstance, AxiosResponse } from 'axios';
+
+declare global {
+    const route: typeof routeFn;
+
+    interface Window {
+        axios: AxiosInstance;
+        Echo: Echo<Pusher>;
+        Pusher: Pusher;
+        authUserId: number;
+    }
+}
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {

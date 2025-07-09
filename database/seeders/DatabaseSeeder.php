@@ -48,9 +48,17 @@ class DatabaseSeeder extends Seeder
             'sort_order' => 2,
         ]);
 
+        $menusMenu = Menu::create([
+            'label' => 'Menu',
+            'route_name' => 'menu.index',
+            'icon' => 'mdi-book-open',
+            'sort_order' => 2,
+        ]);
+
         // Attach permissions to menus
         $dashboardMenu->permissions()->attach($dashboardPermission->id);
         $userMenu->permissions()->attach($userManagementPermission->id);
+        $menusMenu->permissions()->attach($menuPermission->id);
 
         $permission = Permission::updateOrCreate(
             ['name' => 'manage users'],
