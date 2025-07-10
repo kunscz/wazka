@@ -5,18 +5,20 @@ namespace App\Modules\Core\Services;
 use Illuminate\Http\Request;
 use App\Modules\Core\Models\Menu;
 use App\Modules\Core\Models\Permission;
+use Illuminate\Support\Collection;
 
 class MenuService
 {
    /**
     * Build nested menu tree with children
    */
-   public function getTree()
+   public function getTree(): Collection
    {
-      return Menu::with('children')
-         ->whereNull('parent_id')
-         ->orderBy('sort_order')
-         ->get();
+      // return Menu::with('children')
+      //    ->whereNull('parent_id')
+      //    ->orderBy('sort_order')
+      //    ->get();
+      return app(MenuCacheService::class)->get();
    }
 
    /**
@@ -37,6 +39,7 @@ class MenuService
 
       $data['icon'] = $data['icon'] ?? 'mdi-file';
       $data['sort_order'] = $data['sort_order'] ?? 99;
+      app(MenuCacheService::class)->forget();
 
       return Menu::create($data);
    }

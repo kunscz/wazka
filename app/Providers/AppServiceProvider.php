@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Modules\Core\Services\MenuCacheService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(MenuCacheService $cache): void
     {
         $coreRoutes = base_path('app/Modules/Core/Routes/web.php');
 
@@ -27,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
                 ->group($coreRoutes);
         }
 
+        if (!$cache->exists()) {
+            $cache->warm();
+        }
 
     }
 }

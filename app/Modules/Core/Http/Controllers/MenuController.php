@@ -22,7 +22,7 @@ class MenuController extends Controller
         $menu = $this->menus->createFromRequest($request);
         $this->menus->syncPermission($menu);
 
-        return response()->json($menu);
+        return response()->json($menu->load('permissions'));
     }
 
     public function update(Request $request, Menu $menu)
@@ -30,7 +30,7 @@ class MenuController extends Controller
         $menu = $this->menus->updateFromRequest($request, $menu);
         $this->menus->syncPermission($menu);
 
-        return response()->json($menu);
+        return response()->json($menu->load('permissions'));
     }
 
     public function destroy(Menu $menu)
