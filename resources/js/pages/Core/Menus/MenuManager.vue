@@ -12,7 +12,7 @@ const loadMenus = async () => {
   menus.value = await fetchMenuTree()
 }
 
-const handleSelect = (menu) => {
+const handleSelect = (menu: any) => {
   activeMenu.value = menu
 }
 

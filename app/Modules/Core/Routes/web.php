@@ -11,6 +11,7 @@ Route::prefix('core')->name('core.')->group(function () {
     Route::resource('users', UserController::class)->only(['index', 'edit', 'update']);
 });
 
+Route::get('/api/menus', [MenuController::class, 'tree'])->name('api.menus');
 Route::get('/menus', [MenuController::class, 'index'])->name('menus.index'); // Inertia
 Route::get('/api/menus/tree', [MenuController::class, 'tree']);
 Route::post('/api/menus', [MenuController::class, 'store']);
