@@ -10,6 +10,7 @@ namespace App\Modules\Core\Services;
 use Illuminate\Support\Facades\Cache;
 use App\Modules\Core\Models\Menu;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class MenuCacheService
 {
@@ -21,6 +22,10 @@ class MenuCacheService
      */
     public function get(): Collection
     {
+        if (!Schema::hasTable('cache')) {
+            return collect();
+        }
+
         return Cache::remember($this->cacheKey, now()->addMinutes($this->ttlMinutes), function () {
             return Menu::with('children')
                 ->whereNull('parent_id')
@@ -34,7 +39,9 @@ class MenuCacheService
      */
     public function forget(): void
     {
-        Cache::forget($this->cacheKey);
+        if (Schema::hasTable('cache')) {
+            Cache::forget($this->cacheKey);
+        }
     }
 
     /**
@@ -42,8 +49,11 @@ class MenuCacheService
      */
     public function warm(): void
     {
-        $this->forget();
-        $this->get();
+        if (Schema::hasTable('cache')) {
+            $this->forget();
+            $this->get();
+            $this->stamp();
+        }
     }
 
     /**
@@ -51,6 +61,9 @@ class MenuCacheService
      */
     public function exists(): bool
     {
+        if (!Schema::hasTable('cache')) {
+            return false;
+        }
         return Cache::has($this->cacheKey);
     }
 

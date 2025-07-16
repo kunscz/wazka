@@ -18,7 +18,8 @@ const navItems= ref<NavItem[]>([]);
 
 onMounted(async () => {
     await menuStore.fetchMenus();
-    const mapped = await mapMenusToNavItems(menuStore.filteredMenus);
+    // console.log('awaitMenu', menuStore)
+    const mapped = mapMenusToNavItems(menuStore.filteredMenus);
     navItems.value = mapped.map(item => ({
         ...item,
         isActive: item.href === page.url
@@ -30,6 +31,7 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+        iconName: 'LayoutGrid',
     },
 ];
 
@@ -38,11 +40,13 @@ const footerNavItems: NavItem[] = [
         title: 'Github Repo',
         href: 'https://github.com/laravel/vue-starter-kit',
         icon: Folder,
+        iconName: 'Folder',
     },
     {
         title: 'Documentation',
         href: 'https://laravel.com/docs/starter-kits#vue',
         icon: BookOpen,
+        iconName: 'BookOpen',
     },
 ];
 

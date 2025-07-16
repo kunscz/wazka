@@ -11,7 +11,8 @@ export const useMenuStore = defineStore('menu', {
 	}),
 	actions: {
 		async fetchMenus() {
-			const { data } = await window.axios.get('/api/menus');
+			const { data } = await window.axios.get(route('core.menus.tree'));
+			// console.log('NavMenu', data);
 			this.rawMenus = data;
 
 			const page = usePage();
