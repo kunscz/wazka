@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
-import type { NavItem } from '@/types'
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { resolveIcon } from '@/utils/icons';
-import type { LucideIcon } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
 import { onMounted, ref, watch } from 'vue';
+import { resolveIcon } from '@/utils/icons';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import type { NavItem } from '@/types';
+import type { LucideIcon } from 'lucide-vue-next';
 
 const props = defineProps<{ item: NavItem }>()
 const icon = ref<LucideIcon>()
@@ -21,6 +21,7 @@ watch(
 	{ immediate: true}
 )
 
+const page = usePage()
 </script>
 
 <template>
@@ -33,7 +34,7 @@ watch(
 			>
 				<Link :href="props.item.href!" class="flex items-center gap-2">
 					<component v-if="icon" :is="icon" class="w-4 h-4 self-center" />
-					<span class="text-sm leading-tight">{{ props.item.title }}</span>
+					<span class="text-sm font-medium leading-tight">{{ props.item.title }}</span>
 				</Link>
 			</SidebarMenuButton>
 		</SidebarMenuItem>

@@ -1,17 +1,42 @@
 <script setup lang="ts">
-import type { Menu } from '@/types/menu'
-import { usePage } from '@inertiajs/vue3'
+import { ref, onMounted } from 'vue'
+import MenuTree from '@/components/MenuTree.vue'
+import MenuForm from '@/components/MenuForm.vue'
+import { useMenus } from '@/composables/useMenus'
+import type { MenuNode } from '@/types/MenuNode'
 
-const { props } = usePage<{ menus: Menu[] }>()
+const menus = ref<MenuNode[]>([])
+const activeMenu = ref<MenuNode | null>(null)
+
+const { fetchMenuTree } = useMenus()
+
+const loadMenus = async () => {
+  menus.value = await fetchMenuTree()
+  console.log('MenuTree:', menus.value)
+}
+
+const handleSelect = (menu: MenuNode) => {
+  activeMenu.value = menu
+}
+
+const handleSaved = async () => {
+  await loadMenus()
+  activeMenu.value = null
+}
+
+onMounted(loadMenus)
 </script>
 
 <template>
-  <ul>
-    <li v-for="menu in props.menus" :key="menu.id">
-      <strong>{{ menu.label }}</strong> <small>(Requires: {{ menu.permissions.map(p => p.name).join(', ') }})</small>
-      <ul v-if="menu.children.length">
-        <li v-for="child in menu.children" :key="child.id">{{ child.label }}</li>
-      </ul>
-    </li>
-  </ul>
+  <div class="grid grid-cols-2 gap-6 p-6">
+    <!-- Menu Tree Sidebar -->
+    <MenuTree :menus="menus" @select="handleSelect" />
+
+    <!-- Menu Form with Parent Options -->
+    <MenuForm
+      :menu="activeMenu"
+      :parent-options="menus.filter(m => !activeMenu || m.id !== activeMenu.id)"
+      @saved="handleSaved"
+    />
+  </div>
 </template>

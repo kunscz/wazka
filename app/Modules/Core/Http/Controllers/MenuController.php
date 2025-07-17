@@ -12,6 +12,11 @@ class MenuController extends Controller
 {
     public function __construct(protected MenuService $menus) {}
 
+    public function index()
+    {
+        return Inertia::render('Core/Menus/Index');
+    }
+
     public function tree()
     {
         return response()->json($this->menus->getTree());

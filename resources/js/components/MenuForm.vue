@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import { reactive, watch, toRefs, ref } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import type { MenuNode } from '@/types/MenuNode'
 import { useMenus } from '@/composables/useMenus'
 import { usePermissions } from '@/composables/usePermissions'
 import { useRoutes } from '@/composables/useRoutes'
 
+// Starter Kit UI components
+import Card from '@/components/ui/card/Card.vue'
+import Input from '@/components/ui/input/Input.vue'
+import Label from '@/components/ui/label/Label.vue'
+import Checkbox from '@/components/ui/checkbox/Checkbox.vue'
+import Button from '@/components/ui/button/Button.vue'
+import Separator from '@/components/ui/separator/Separator.vue'
+
 const props = defineProps<{
-	menu: MenuNode | null
-	parentOptions:MenuNode[]
+  menu: MenuNode | null
+  parentOptions: MenuNode[]
 }>()
 
 const emit = defineEmits<{ (e: 'saved'): void }>()
 
 const { createMenu, updateMenu } = useMenus()
 const { fetchPermissions, attachPermissionToMenu } = usePermissions()
-
-const availablePermissions = ref<string[]>([])
-const selectedPermission = ref('')
-const permissionList = ref<string[]>([])
-
-const routeSuggestions = ref<string[]>([])
-const filteredRoutes = ref<string[]>([])
 const { fetchRoutes } = useRoutes()
 
 const form = reactive({
@@ -34,46 +35,52 @@ const form = reactive({
   is_manual: true,
 })
 
-watch(
-  () => props.menu,
-  async (menu) => {
-    if (menu) {
-      form.label = menu.label
-      form.route_name = menu.route_name ?? ''
-      form.url = menu.url ?? ''
-      form.icon = menu.icon ?? ''
-      form.parent_id = menu.parent_id ?? null
-      form.sort_order = menu.sort_order ?? 99
-      form.is_active = menu.is_active
-      permissionList.value = menu.permissions ?? []
-    } else {
-      Object.assign(form, {
-        label: '',
-        route_name: '',
-        url: '',
-        icon: '',
-        parent_id: null,
-        sort_order: 99,
-        is_active: true,
-        is_manual: true,
-      })
-      permissionList.value = []
-    }
-
-    availablePermissions.value = await fetchPermissions()
-  },
-  { immediate: true }
+const availablePermissions = ref<string[]>([])
+const selectedPermission = ref('')
+const permissionList = ref<string[]>([])
+const routeSuggestions = ref<string[]>([])
+const filteredRoutes = computed(() =>
+  routeSuggestions.value.filter(r =>
+    r.toLowerCase().includes(form.route_name.toLowerCase())
+  )
 )
 
-watch(() => form.route_name, async (val) => {
+watch(() => props.menu, async (menu) => {
+  if (menu) {
+    Object.assign(form, {
+      label: menu.label,
+      route_name: menu.route_name ?? '',
+      url: menu.url ?? '',
+      icon: menu.icon ?? '',
+      sort_order: menu.sort_order ?? 99,
+      parent_id: menu.parent_id ?? null,
+      is_active: menu.is_active,
+      is_manual: menu.is_manual ?? true,
+    })
+    permissionList.value = menu.permissions ?? []
+  } else {
+    Object.assign(form, {
+      label: '',
+      route_name: '',
+      url: '',
+      icon: '',
+      sort_order: 99,
+      parent_id: null,
+      is_active: true,
+      is_manual: true,
+    })
+    permissionList.value = []
+  }
+
+  availablePermissions.value = await fetchPermissions()
+})
+
+watch(() => form.route_name, async () => {
   if (!routeSuggestions.value.length) {
     routeSuggestions.value = await fetchRoutes()
   }
-  filteredRoutes.value = routeSuggestions.value.filter(r =>
-    r.toLowerCase().includes(val.toLowerCase())
-  )
 })
-
+  
 const handleSubmit = async () => {
   if (props.menu?.id) {
     await updateMenu(props.menu.id, form)
@@ -93,104 +100,87 @@ const handleAttachPermission = async () => {
 </script>
 
 <template>
-	<div class="bg-white p-4 rounded shadow">
-		<h2 class="text-lg font-semibold mb-4">
-			{{ props.menu ? 'Edit Menu' : 'Create Menu' }}
-		</h2>
+  <Card class="p-4 space-y-6">
+    <div class="space-y-4">
+      <div>
+        <Label for="label">Label</Label>
+        <Input id="label" v-model="form.label" placeholder="Menu label" />
+      </div>
 
-		<form @submit.prevent="handleSubmit" class="space-y-4">
-			<input v-model="form.label" type="text" class="input" placeholder="Label" required />
+      <div>
+        <Label for="route">Route Name</Label>
+        <Input id="route" v-model="form.route_name" placeholder="Route (e.g. core.menus.index)" />
+        <div v-if="filteredRoutes.length" class="mt-2 space-y-1 text-sm">
+          <div
+            v-for="r in filteredRoutes"
+            :key="r"
+            @click="form.route_name = r"
+            class="cursor-pointer px-2 py-1 hover:bg-muted rounded"
+          >
+            {{ r }}
+          </div>
+        </div>
+      </div>
 
-			<input v-model="form.route_name" type="text" class="input" placeholder="Route Name" />
-			<AutocompleteInput
-				v-model="form.route_name"
-				:options="routeSuggestions"
-				placeholder="Search route name"
-			/>
+      <div>
+        <Label for="url">External URL</Label>
+        <Input id="url" v-model="form.url" placeholder="Optional external link" />
+      </div>
 
-			<input v-model="form.url" type="text" class="input" placeholder="External URL" />
-			<input v-model="form.icon" type="text" class="input" placeholder="Icon" />
-			<input v-model.number="form.sort_order" type="number" class="input" placeholder="Sort Order" />
-			
-			<div class="flex items-center gap-2">
-			<input v-model="form.is_active" type="checkbox" />
-			<label class="text-sm">Active</label>
-			</div>
+      <div>
+        <Label for="icon">Icon</Label>
+        <Input id="icon" v-model="form.icon" placeholder="Lucide icon name (e.g. ListTree)" />
+      </div>
 
-			<button type="submit" class="btn btn-primary">
-			{{ props.menu ? 'Update' : 'Create' }}
-			</button>
-		</form>
+      <div>
+        <Label for="sort">Sort Order</Label>
+        <Input id="sort" type="number" v-model.number="form.sort_order" />
+      </div>
 
-		<!-- Linked Permissions -->
-		<div v-if="permissionList.length" class="mt-6">
-			<h3 class="text-sm font-semibold">Linked Permissions</h3>
-			<ul class="mt-1 list-disc list-inside text-sm text-gray-600">
-			<li v-for="perm in permissionList" :key="perm">{{ perm }}</li>
-			</ul>
-		</div>
+      <div class="flex items-center gap-2 mt-2">
+        <Checkbox id="active" v-model="form.is_active" />
+        <Label for="active">Active</Label>
+      </div>
 
-		<!-- Permission Picker -->
-		<div v-if="props.menu" class="mt-6">
-			<h3 class="text-sm font-semibold mb-2">Attach Permission</h3>
-			<select v-model="selectedPermission" class="input">
-			<option value="">-- Select Permission --</option>
-			<option v-for="perm in availablePermissions" :key="perm" :value="perm">
-				{{ perm }}
-			</option>
-			</select>
-			<button @click="handleAttachPermission" class="btn btn-secondary mt-2">
-			Attach
-			</button>
-		</div>
-	</div>
-   
-	<div>
-		<label class="block text-sm font-medium">Parent Menu</label>
-		<select v-model="form.parent_id" class="input">
-			<option :value="null">-- No Parent --</option>
-			<option
-				v-for="parent in parentOptions"
-				:key="parent.id"
-				:value="parent.id"
-			>
-				{{ parent.label }}
-			</option>
-		</select>
-	</div>
+      <div>
+        <Label for="parent">Parent Menu</Label>
+        <select id="parent" v-model="form.parent_id" class="w-full mt-1 rounded border p-2">
+          <option :value="null">-- No Parent --</option>
+          <option
+            v-for="parent in parentOptions"
+            :key="parent.id"
+            :value="parent.id"
+          >
+            {{ parent.label }}
+          </option>
+        </select>
+      </div>
+
+      <Button type="submit" class="mt-4 w-full" @click="handleSubmit">
+        {{ props.menu ? 'Update Menu' : 'Create Menu' }}
+      </Button>
+    </div>
+
+    <Separator />
+
+    <div v-if="permissionList.length">
+      <Label>Linked Permissions</Label>
+      <ul class="list-disc list-inside text-sm mt-1 space-y-1">
+        <li v-for="perm in permissionList" :key="perm">{{ perm }}</li>
+      </ul>
+    </div>
+
+    <div v-if="props.menu" class="space-y-2">
+      <Label>Attach Permission</Label>
+      <select v-model="selectedPermission" class="w-full rounded border p-2">
+        <option value="">-- Select Permission --</option>
+        <option v-for="perm in availablePermissions" :key="perm" :value="perm">
+          {{ perm }}
+        </option>
+      </select>
+      <Button appearance="secondary" @click="handleAttachPermission">
+        Attach
+      </Button>
+    </div>
+  </Card>
 </template>
-
-<style scoped>
-.input {
-	width: 100%;
-	padding: 0.5rem;
-	border: 1px solid #d1d5db;
-	border-radius: 4px;
-}
-.btn-primary {
-	background-color: #2563eb;
-	color: white;
-	padding: 0.5rem 1rem;
-	border-radius: 4px;
-}
-.btn-secondary {
-	background-color: #4b5563;
-	color: white;
-	padding: 0.4rem 0.8rem;
-	border-radius: 4px;
-}
-.autocomplete-results {
-  border: 1px solid #ccc;
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: 0.25rem;
-}
-.autocomplete-result {
-  padding: 0.5rem;
-  cursor: pointer;
-}
-.autocomplete-result:hover {
-  background-color: #f3f4f6;
-}
-
-</style>
