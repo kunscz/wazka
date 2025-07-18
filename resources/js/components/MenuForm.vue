@@ -12,6 +12,8 @@ import Label from '@/components/ui/label/Label.vue'
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
+import ComboboxInput from './ui/combobox/ComboboxInput.vue'
+import AutocompleteInput from '@/components/ui/autocomplete/AutocompleteInput.vue'
 
 const props = defineProps<{
   menu: MenuNode | null
@@ -39,11 +41,15 @@ const availablePermissions = ref<string[]>([])
 const selectedPermission = ref('')
 const permissionList = ref<string[]>([])
 const routeSuggestions = ref<string[]>([])
-const filteredRoutes = computed(() =>
-  routeSuggestions.value.filter(r =>
-    r.toLowerCase().includes(form.route_name.toLowerCase())
+const isFocused = ref(false)
+
+const filteredRoutes = computed(() => {
+  const input = form.route_name.toLocaleLowerCase()
+  const filtered = routeSuggestions.value.filter(r =>
+    r.toLowerCase().includes(input)
   )
-)
+  return [...new Set(filtered)]
+})
 
 watch(() => props.menu, async (menu) => {
   if (menu) {
@@ -54,7 +60,7 @@ watch(() => props.menu, async (menu) => {
       icon: menu.icon ?? '',
       sort_order: menu.sort_order ?? 99,
       parent_id: menu.parent_id ?? null,
-      is_active: menu.is_active,
+      is_active: Boolean(menu.is_active),
       is_manual: menu.is_manual ?? true,
     })
     permissionList.value = menu.permissions ?? []
@@ -72,7 +78,13 @@ watch(() => props.menu, async (menu) => {
     permissionList.value = []
   }
 
-  availablePermissions.value = await fetchPermissions()
+  // get permissions route still broken
+  try {
+    availablePermissions.value = await fetchPermissions()
+  } catch (err) {
+    console.error('Failed to fetch permissions:', err)
+  }
+  
 })
 
 watch(() => form.route_name, async () => {
@@ -107,19 +119,30 @@ const handleAttachPermission = async () => {
         <Input id="label" v-model="form.label" placeholder="Menu label" />
       </div>
 
-      <div>
+      <!-- <div>
         <Label for="route">Route Name</Label>
-        <Input id="route" v-model="form.route_name" placeholder="Route (e.g. core.menus.index)" />
-        <div v-if="filteredRoutes.length" class="mt-2 space-y-1 text-sm">
+        <Input id="route" v-model="form.route_name" placeholder="Route (e.g. core.menus.index)"
+          @focus="isFocused = true"
+          @blur="isFocused = false"
+        />
+        <div v-if="isFocused && filteredRoutes.length" class="mt-2 space-y-1 text-sm border rounded bg-popover p-2">
           <div
             v-for="r in filteredRoutes"
             :key="r"
-            @click="form.route_name = r"
+            @mousedown.prevent="form.route_name = r"
             class="cursor-pointer px-2 py-1 hover:bg-muted rounded"
           >
             {{ r }}
           </div>
         </div>
+      </div> -->
+
+      <div>
+        <AutocompleteInput
+          v-model="form.route_name"
+          :options="filteredRoutes"
+          placeholder="Search route name"
+        />
       </div>
 
       <div>
@@ -154,6 +177,17 @@ const handleAttachPermission = async () => {
             {{ parent.label }}
           </option>
         </select>
+      </div>
+
+      <div>
+        <ComboboxInput
+          v-model="form.parent_id"
+          :options="[
+            { label: '-- No Parent --', value: null },
+            ...parentOptions.map(p => ({ label: p.label, value: p.id }))
+          ]"
+          placeholder="Select parent menu"
+        />
       </div>
 
       <Button type="submit" class="mt-4 w-full" @click="handleSubmit">

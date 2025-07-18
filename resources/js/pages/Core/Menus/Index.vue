@@ -11,11 +11,13 @@ const activeMenu = ref<MenuNode | null>(null)
 const { fetchMenuTree } = useMenus()
 
 const loadMenus = async () => {
+  if (!menus) return
   menus.value = await fetchMenuTree()
   console.log('MenuTree:', menus.value)
 }
 
 const handleSelect = (menu: MenuNode) => {
+  if (!menu) return
   activeMenu.value = menu
 }
 
