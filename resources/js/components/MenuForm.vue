@@ -13,6 +13,7 @@ import Checkbox from '@/components/ui/checkbox/Checkbox.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import ComboboxInput from './ui/combobox/ComboboxInput.vue'
+import ComboboxInputR from './ui/combobox/ComboboxInputR.vue'
 import AutocompleteInput from '@/components/ui/autocomplete/AutocompleteInput.vue'
 
 const props = defineProps<{
@@ -138,6 +139,7 @@ const handleAttachPermission = async () => {
       </div> -->
 
       <div>
+        <Label for="route">Route Name</Label>
         <AutocompleteInput
           v-model="form.route_name"
           :options="filteredRoutes"
@@ -165,7 +167,7 @@ const handleAttachPermission = async () => {
         <Label for="active">Active</Label>
       </div>
 
-      <div>
+      <!-- <div>
         <Label for="parent">Parent Menu</Label>
         <select id="parent" v-model="form.parent_id" class="w-full mt-1 rounded border p-2">
           <option :value="null">-- No Parent --</option>
@@ -177,17 +179,22 @@ const handleAttachPermission = async () => {
             {{ parent.label }}
           </option>
         </select>
-      </div>
+      </div> -->
 
       <div>
+      <Label>Parent Menu</Label>
         <ComboboxInput
           v-model="form.parent_id"
           :options="[
-            { label: '-- No Parent --', value: null },
-            ...parentOptions.map(p => ({ label: p.label, value: p.id }))
+            { name: '-- No Parent --', id: null },
+            ...parentOptions.map(p => ({ name: p.label, id: p.id }))
           ]"
           placeholder="Select parent menu"
         />
+      </div>
+
+      <div>
+        <ComboboxInputR />
       </div>
 
       <Button type="submit" class="mt-4 w-full" @click="handleSubmit">
