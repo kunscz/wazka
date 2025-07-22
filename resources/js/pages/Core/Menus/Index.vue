@@ -1,44 +1,56 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import MenuTree from '@/components/MenuTree.vue'
-import MenuForm from '@/components/MenuForm.vue'
-import { useMenus } from '@/composables/useMenus'
-import type { MenuNode } from '@/types/MenuNode'
+	import { ref, onMounted } from 'vue'
+	import MenuTree from '@/components/MenuTree.vue'
+	import MenuForm from '@/components/MenuForm.vue'
+	import { useMenus } from '@/composables/useMenus'
+	import type { MenuNode } from '@/types/MenuNode'
 
-const menus = ref<MenuNode[]>([])
-const activeMenu = ref<MenuNode | null>(null)
+	const menus = ref<MenuNode[]>([])
+	const activeMenu = ref<MenuNode | null>(null)
 
-const { fetchMenuTree } = useMenus()
+	const { fetchMenuTree } = useMenus()
 
-const loadMenus = async () => {
-  if (!menus) return
-  menus.value = await fetchMenuTree()
-  console.log('MenuTree:', menus.value)
-}
+	const loadMenus = async () => {
+		if (!menus) return
+		menus.value = await fetchMenuTree()
+		console.log('MenuTree:', menus.value)
+	}
 
-const handleSelect = (menu: MenuNode) => {
-  if (!menu) return
-  activeMenu.value = menu
-}
+	const handleSelect = (menu: MenuNode) => {
+		if (!menu) return
 
-const handleSaved = async () => {
-  await loadMenus()
-  activeMenu.value = null
-}
+		const resolvedParent = 
+			menu.parent_id !== null
+				? menus.value.find(m => m.id === menu.parent_id)
+				: null
+			
+		console.log('selectedMenu: ', menu)
+		activeMenu.value = {
+			...menu,
+			parent: resolvedParent
+				? { label: resolvedParent.label, id: resolvedParent.id }
+				: { label: '-- No Parent --', id: null }
+		}
+	}
 
-onMounted(loadMenus)
-</script>
+	const handleSaved = async () => {
+		await loadMenus()
+		activeMenu.value = null
+	}
 
-<template>
-  <div class="grid grid-cols-2 gap-6 p-6">
-    <!-- Menu Tree Sidebar -->
-    <MenuTree :menus="menus" @select="handleSelect" />
+	onMounted(loadMenus)
+	</script>
 
-    <!-- Menu Form with Parent Options -->
-    <MenuForm
-      :menu="activeMenu"
-      :parent-options="menus.filter(m => !activeMenu || m.id !== activeMenu.id)"
-      @saved="handleSaved"
-    />
-  </div>
-</template>
+	<template>
+	<div class="grid grid-cols-2 gap-6 p-6">
+		<!-- Menu Tree Sidebar -->
+		<MenuTree :menus="menus" @select="handleSelect" />
+
+		<!-- Menu Form with Parent Options -->
+		<MenuForm
+			:menu="activeMenu"
+			:parent-options="menus.filter(m => !activeMenu || m.id !== activeMenu.id)"
+			@saved="handleSaved"
+		/>
+	</div>
+	</template>

@@ -8,6 +8,7 @@ export interface MenuNode {
   is_manual: boolean
   sort_order?: number
   parent_id?: number | null
+  parent?: {label: string, id: number | null } | null
   permissions?: string[]
   children?: MenuNode[]
 }
