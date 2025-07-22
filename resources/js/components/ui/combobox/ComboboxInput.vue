@@ -1,5 +1,5 @@
 <script setup lang="ts">
-   import { computed } from 'vue';
+   import { computed, watch } from 'vue';
    import {
       ComboboxRoot, ComboboxAnchor, ComboboxInput,
       ComboboxTrigger, ComboboxContent, ComboboxViewport,
@@ -8,8 +8,8 @@
    import ChevronIcon from '@/components/ui/icon/ChevronIcon.vue'
 
    const props = defineProps<{
-      modelValue: { label: string; id: string | number | null } | null
-      options: Array<{ label: string; id: string | number | null }>
+      modelValue: { label: string; id: number | null } | null
+      options: Array<{ label: string; id: number | null }>
       placeholder?: string
    }>()
 
@@ -18,8 +18,24 @@
       set: val => emit('update:modelValue', val)
    })
 
+   const isSelected = computed(() => value.value?.id !== null)
+   const isMatch = (opt: { id: number | null }) => 
+      opt.id === props.modelValue?.id
+
+   watch(value, (newVal) => {
+      if (newVal && newVal.id !== null) {
+         console.log('Selected: ', newVal)
+      } else {
+         console.log('No selection')
+      }
+   })
+
+   watch(() => props.modelValue, (newVal) => {
+      console.log('menu: ', newVal)
+   })
+
    const emit = defineEmits<{
-      (e: 'update:modelValue', parent: { label: string; id: string | number | null } | null): void
+      (e: 'update:modelValue', parent: { label: string; id: number | null } | null): void
    }>()
 </script>
 
@@ -53,8 +69,11 @@
                class="text-sm px-3 py-2 rounded cursor-pointer flex items-center justify-between hover:bg-muted"
             >
                {{ opt.label }}
-               <ComboboxItemIndicator v-if="opt.id === modelValue" class="text-muted">
-               ✓
+               <ComboboxItemIndicator v-if="opt.id === value?.id" class="text-muted">
+                  ✓
+               </ComboboxItemIndicator>
+               <ComboboxItemIndicator v-if="isMatch(opt)" class="text-muted">
+                  x
                </ComboboxItemIndicator>
             </ComboboxItem>
          </template>

@@ -24,13 +24,13 @@
 				? menus.value.find(m => m.id === menu.parent_id)
 				: null
 			
-		console.log('selectedMenu: ', menu)
 		activeMenu.value = {
 			...menu,
 			parent: resolvedParent
 				? { label: resolvedParent.label, id: resolvedParent.id }
 				: { label: '-- No Parent --', id: null }
 		}
+		// console.log('selectedMenu: ', activeMenu.value)
 	}
 
 	const handleSaved = async () => {

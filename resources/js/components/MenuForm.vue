@@ -53,7 +53,7 @@
 	})
 
 	watch(() => props.menu, async (menu) => {
-	console.log('menuForm', menu);
+	// console.log('menuForm', menu);
 	if (menu) {
 		Object.assign(form, {
 			label: menu.label,
@@ -62,6 +62,7 @@
 			icon: menu.icon ?? '',
 			sort_order: menu.sort_order ?? 99,
 			parent_id: menu.parent_id ?? null,
+			parent: menu.parent ?? null,
 			is_active: Boolean(menu.is_active),
 			is_manual: menu.is_manual ?? true,
 		})
@@ -74,6 +75,7 @@
 			icon: '',
 			sort_order: 99,
 			parent_id: null,
+			parent: null,
 			is_active: true,
 			is_manual: true,
 		})
