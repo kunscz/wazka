@@ -4,6 +4,7 @@ namespace App\Modules\Core\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Models\Menu;
+use App\Modules\Core\Models\Permission;
 use App\Modules\Core\Services\MenuService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -42,5 +43,18 @@ class MenuController extends Controller
     {
         $this->menus->delete($menu);
         return response()->json(['message' => 'Menu deleted']);
+    }
+
+    public function getPermissions()
+    {
+        return Permission::select('name')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($perm) {
+                return [
+                    'label' => ucwords(str_replace('.', ' ', $perm->name)),
+                    'name' => $perm->name,
+                ];
+            });
     }
 }

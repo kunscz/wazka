@@ -48,7 +48,7 @@
       <ComboboxAnchor
          class="inline-flex items-center justify-between rounded border px-3 py-2 h-[38px] w-full bg-card hover:bg-muted shadow-sm text-sm"
       >
-         <ComboboxInput :display-value="(v) => v.label"
+         <ComboboxInput :display-value="(v) => v?.label"
          placeholder="Select option"
          class="w-full bg-transparent outline-none selection:bg-muted"
          />

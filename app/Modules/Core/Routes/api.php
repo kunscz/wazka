@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Modules\Core\Http\Controllers\MenuController;
 use App\Modules\Core\Http\Controllers\RoleController;
 use App\Modules\Core\Http\Controllers\UserController;
+use App\Modules\Core\Models\Permission;
 
 // Grouped under 'core' prefix and 'core.' route names
 Route::prefix('core')->name('core.')->group(function () {
@@ -12,6 +13,15 @@ Route::prefix('core')->name('core.')->group(function () {
     Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
     Route::put('/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
     Route::delete('/menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+    Route::get('/permissions', function () {
+        return Permission::orderBy('name')->get()->map( function ($perm) {
+            return [
+                'id' => $perm->id,
+                'name' => $perm->name,
+                'label' => ucwords(str_replace('.', ' ', $perm->name))
+            ];
+        });
+    });
 
     // 📂 Role Routes
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');

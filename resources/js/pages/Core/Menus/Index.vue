@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { ref, onMounted } from 'vue'
+	import AppLayout from '@/layouts/AppLayout.vue'
 	import MenuTree from '@/components/MenuTree.vue'
 	import MenuForm from '@/components/MenuForm.vue'
 	import { useMenus } from '@/composables/useMenus'
@@ -7,7 +8,6 @@
 
 	const menus = ref<MenuNode[]>([])
 	const activeMenu = ref<MenuNode | null>(null)
-
 	const { fetchMenuTree } = useMenus()
 
 	const loadMenus = async () => {
@@ -16,21 +16,22 @@
 		console.log('MenuTree:', menus.value)
 	}
 
-	const handleSelect = (menu: MenuNode) => {
-		if (!menu) return
-
-		const resolvedParent = 
-			menu.parent_id !== null
-				? menus.value.find(m => m.id === menu.parent_id)
-				: null
-			
-		activeMenu.value = {
-			...menu,
-			parent: resolvedParent
-				? { label: resolvedParent.label, id: resolvedParent.id }
-				: { label: '-- No Parent --', id: null }
+	const handleSelect = (menu: MenuNode | null) => {
+		if (!menu) {
+			activeMenu.value = menu;
+		} else {
+			const resolvedParent = 
+				menu.parent_id !== null
+					? menus.value.find(m => m.id === menu.parent_id)
+					: null
+				
+			activeMenu.value = {
+				...menu,
+				parent: resolvedParent
+					? { label: resolvedParent.label, id: resolvedParent.id }
+					: { label: '-- No Parent --', id: null }
+			}
 		}
-		// console.log('selectedMenu: ', activeMenu.value)
 	}
 
 	const handleSaved = async () => {
@@ -39,9 +40,10 @@
 	}
 
 	onMounted(loadMenus)
-	</script>
+</script>
 
-	<template>
+<template>
+	<AppLayout>
 	<div class="grid grid-cols-2 gap-6 p-6">
 		<!-- Menu Tree Sidebar -->
 		<MenuTree :menus="menus" @select="handleSelect" />
@@ -53,4 +55,5 @@
 			@saved="handleSaved"
 		/>
 	</div>
-	</template>
+	</AppLayout>
+</template>

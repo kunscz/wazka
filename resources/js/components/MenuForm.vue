@@ -38,9 +38,22 @@
 		parent: props.menu?.parent ?? { label: '-- No Parent --', id: null }
 	})
 
-	const availablePermissions = ref<string[]>([])
-	const selectedPermission = ref('')
+	// permissions
 	const permissionList = ref<string[]>([])
+	const permissionOptions = ref<{ id: number; label: string; name: string }[]>([])
+	const selectedPermission = ref<{ id: number; label: string; name: string } | null>(null)
+
+	function formatPermissionLabel(name: string): string {
+		return name
+			.split('.')
+			.map(w => w.charAt(0).toUpperCase() + w.slice(1))
+			.join(' ')
+	}
+	selectedPermission.value = permissionOptions.value.find(
+		p => props.menu?.permissions?.includes(p.name)
+	) ?? null
+
+
 	const routeSuggestions = ref<string[]>([])
 	const isFocused = ref(false)
 
@@ -53,42 +66,45 @@
 	})
 
 	watch(() => props.menu, async (menu) => {
-	// console.log('menuForm', menu);
-	if (menu) {
-		Object.assign(form, {
-			label: menu.label,
-			route_name: menu.route_name ?? '',
-			url: menu.url ?? '',
-			icon: menu.icon ?? '',
-			sort_order: menu.sort_order ?? 99,
-			parent_id: menu.parent_id ?? null,
-			parent: menu.parent ?? null,
-			is_active: Boolean(menu.is_active),
-			is_manual: menu.is_manual ?? true,
-		})
-		permissionList.value = menu.permissions ?? []
-	} else {
-		Object.assign(form, {
-			label: '',
-			route_name: '',
-			url: '',
-			icon: '',
-			sort_order: 99,
-			parent_id: null,
-			parent: null,
-			is_active: true,
-			is_manual: true,
-		})
-		permissionList.value = []
-	}
+		// console.log('menuForm', menu);
+		if (menu) {
+			Object.assign(form, {
+				label: menu.label,
+				route_name: menu.route_name ?? '',
+				url: menu.url ?? '',
+				icon: menu.icon ?? '',
+				sort_order: menu.sort_order ?? 99,
+				parent_id: menu.parent_id ?? null,
+				parent: menu.parent ?? null,
+				is_active: Boolean(menu.is_active),
+				is_manual: menu.is_manual ?? true,
+			})
+			permissionList.value = menu.permissions ?? []
+		} else {
+			Object.assign(form, {
+				label: '',
+				route_name: '',
+				url: '',
+				icon: '',
+				sort_order: 99,
+				parent_id: null,
+				parent: null,
+				is_active: true,
+				is_manual: true,
+			})
+			permissionList.value = []
+		}
 
-	// get permissions route still broken
-	try {
-		availablePermissions.value = await fetchPermissions()
-	} catch (err) {
-		console.error('Failed to fetch permissions:', err)
-	}
-	
+		// get permissions route still broken
+		try {
+			permissionOptions.value = await fetchPermissions()
+			selectedPermission.value = 
+				permissionOptions.value.find(p => 
+					props.menu?.permissions?.includes(p.name)
+				) ?? null
+		} catch (err) {
+			console.error('Failed to fetch permissions:', err)
+		}
 	})
 
 	watch(() => form.route_name, async () => {
@@ -107,11 +123,11 @@
 	}
 
 	const handleAttachPermission = async () => {
-	if (props.menu?.id && selectedPermission.value) {
-		await attachPermissionToMenu(props.menu.id, selectedPermission.value)
-		permissionList.value.push(selectedPermission.value)
-		selectedPermission.value = ''
-	}
+		if (props.menu?.id && selectedPermission.value?.name) {
+			await attachPermissionToMenu(props.menu.id, selectedPermission.value.name)
+			permissionList.value.push(selectedPermission.value.name)
+			selectedPermission.value = null
+		}
 	}
 	</script>
 
@@ -210,8 +226,15 @@
 			</ul>
 		</div>
 
+		<div v-if="permissionList.length">
+			<Label>Linked Permissions</Label>
+			<ul class="list-disc list-inside text-sm mt-1 space-y-1">
+				<li v-for="perm in permissionList" :key="perm">{{ perm }}</li>
+			</ul>
+		</div>
+
 		<div v-if="props.menu" class="space-y-2">
-			<Label>Attach Permission</Label>
+			<!-- <Label>Attach Permission</Label>
 			<select v-model="selectedPermission" class="w-full rounded border p-2">
 			<option value="">-- Select Permission --</option>
 			<option v-for="perm in availablePermissions" :key="perm" :value="perm">
@@ -220,6 +243,16 @@
 			</select>
 			<Button appearance="secondary" @click="handleAttachPermission">
 			Attach
+			</Button> -->
+
+			<Label>Attach Permission</Label>
+			<ComboboxInput
+				v-model="selectedPermission"
+				:options="permissionOptions"
+				placeholder="Select permission"
+			/>
+			<Button appearance="secondary" @click="handleAttachPermission">
+				Attach
 			</Button>
 		</div>
 	</Card>
