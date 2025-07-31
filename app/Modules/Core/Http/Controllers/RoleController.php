@@ -5,11 +5,30 @@ namespace App\Modules\Core\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Core\Models\Role;
 use Illuminate\Http\Request;
-
+use Inertia\Inertia;
 
 class RoleController extends Controller
 {
     public function index()
+    {
+        $roles = Role::with('permissions')->get();
+        // return response()->json($roles);
+        return Inertia::render('Core/Roles/RolePage', 
+    
+            [
+                'roles' => $roles,
+                'permissions' => \App\Modules\Core\Models\Permission::all()->map(function ($perm) {
+                    return [
+                        'id' => $perm->id,
+                        'name' => $perm->name,
+                        'label' => ucwords(str_replace('.', ' ', $perm->name))
+                    ];
+                }),
+            ]
+        );
+    }
+
+    public function getRolesPermissions()
     {
         $roles = Role::with('permissions')->get();
         return response()->json($roles);

@@ -3,6 +3,7 @@
 // app/Modules/Core/Routes/web.php
 
 use App\Modules\Core\Http\Controllers\MenuController;
+use App\Modules\Core\Http\Controllers\RoleController;
 use App\Modules\Core\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,6 @@ Route::prefix('core')->name('core.')->group(function () {
     Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
     Route::put('/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
     Route::delete('/menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+
+    Route::get('/roles', [RoleController::class, 'index'])->name('role.index'); // Menu Manager view
 });

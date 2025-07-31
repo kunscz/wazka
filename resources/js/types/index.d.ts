@@ -54,6 +54,14 @@ export interface Role {
     permissions: Permission[]
 }
 
+export interface RolePayload {
+  name: string
+}
+
+export interface SyncPermissionsPayload {
+  permissions: string[]
+}
+
 export interface Menu {
     id: number
     label: string
