@@ -84,6 +84,7 @@ const handleSaved = async () => {
             <th class="px-4 py-2">Name</th>
             <th class="px-4 py-2">Email</th>
             <th class="px-4 py-2">Roles</th>
+            <th class="px-4 py-2">Permissions</th>
             <th class="px-4 py-2">Actions</th>
             </tr>
          </thead>
@@ -97,6 +98,12 @@ const handleSaved = async () => {
                <td class="px-4 py-2">
                   <span v-if="user.roles.length">
                      {{ user.roles.map(r => r.name).join(', ') }}
+                  </span>
+                  <span v-else class="text-muted-foreground italic">None</span>
+               </td>
+               <td class="px-4 py-2">
+                  <span v-if="user.permissions.length">
+                     {{ user.permissions.map(p => p.name).join(', ') }}
                   </span>
                   <span v-else class="text-muted-foreground italic">None</span>
                </td>
