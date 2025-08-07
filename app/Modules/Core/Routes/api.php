@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum'])->prefix('core')->name('core.')->group(functi
     Route::post('/roles/{role}/sync-permissions')->name('roles.sync');
 
     // 📂 User Routes
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users', [UserController::class, 'getUsers'])->name('users.get');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');

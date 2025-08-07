@@ -5,13 +5,59 @@ namespace App\Modules\Core\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
     public function index()
     {
+        // $users = User::with('roles', 'permissions')->get();
+        // return response()->json($users);
+        // $usersComplete = [
+        //         'users' => $users,
+        //         'roles' => \App\Modules\Core\Models\Role::all()->map(function ($role) {
+        //             return [
+        //                 'id' => $role->id,
+        //                 'name' => $role->name,
+        //             ];
+        //         }),
+        //         'permissions' => \App\Modules\Core\Models\Permission::all()->map(function ($perm) {
+        //             return [
+        //                 'id' => $perm->id,
+        //                 'name' => $perm->name,
+        //                 'label' => ucwords(str_replace('.', ' ', $perm->name))
+        //             ];
+        //         }),
+        //     ];
+        // dd($usersComplete);
+        return Inertia::render('Core/Users/UserPage');
+    }
+
+    public function getUsers()
+    {
         $users = User::with('roles', 'permissions')->get();
-        return response()->json($users);
+        $usersComplete = [
+            'users' => $users,
+            'roles' => \App\Modules\Core\Models\Role::all()->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ];
+            }),
+            'permissions' => \App\Modules\Core\Models\Permission::all()->map(function ($perm) {
+                return [
+                    'id' => $perm->id,
+                    'name' => $perm->name,
+                    'label' => ucwords(str_replace('.', ' ', $perm->name))
+                ];
+            }),
+        ];
+        return response()->json($usersComplete);
+    }
+
+    public function show(User $user)
+    {
+        return response()->json($user->load('roles', 'permissions'));
     }
 
     public function store(Request $request)

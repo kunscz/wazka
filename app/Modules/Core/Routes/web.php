@@ -16,4 +16,6 @@ Route::prefix('core')->name('core.')->group(function () {
     Route::delete('/menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
 
     Route::get('/roles', [RoleController::class, 'index'])->name('role.index'); // Menu Manager view
+
+    Route::get('/users', [UserController::class, 'index'])->name('users.index'); // User Manager view
 });

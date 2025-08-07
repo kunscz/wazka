@@ -65,4 +65,16 @@ class RoleController extends Controller
         $role->delete();
         return response()->json(['message' => 'Role deleted']);
     }
+
+    public function syncPermissions(Request $request, Role $role)
+    {
+        $data = $request->validate([
+            'permissions' => 'array',
+            'permissions.*' => 'numeric|exists:permissions,id',
+        ]);
+
+        $role->syncPermissions($data['permissions'] ?? []);
+
+        return response()->json(['message' => 'Permissions synced', 'role' => $role]);
+    }
 }
