@@ -117,7 +117,7 @@ const handleSaved = async () => {
       </div>
 
       <div v-else class="text-sm text-muted-foreground italic">
-      No users found. Click "Create User" to add one.
+         No users found. Click "Create User" to add one.
       </div>
 
       <UserFormModal

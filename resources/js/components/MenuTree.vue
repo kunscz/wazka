@@ -7,18 +7,48 @@
 	import Collapsible from '@/components/ui/collapsible/Collapsible.vue'
 	import CollapsibleTrigger from '@/components/ui/collapsible/CollapsibleTrigger.vue'
 	import CollapsibleContent from '@/components/ui/collapsible/CollapsibleContent.vue'
+	import { MenuNode } from '@/types/MenuNode'
 
-	const props = defineProps<{ menus: any[] }>()
-	const emit = defineEmits<{ (e: 'select', menu: any | null): void }>()
+	const props = defineProps<{
+		menus: MenuNode[]
+		showInactive: boolean
+	}>()
+
+	const handleToggle = (event: Event) => {
+		const target = event.target as HTMLInputElement
+		emit('toggle-inactive', target.checked)
+	}
+
+	const emit = defineEmits<{
+		(e: 'select', menu: any | null): void
+		(e: 'toggle-inactive', value: boolean): void
+	}>()
 </script>
 
 <template>
 	<Card class="p-4 space-y-4">
 		<div class="flex items-center justify-between">
 			<Label class="text-lg font-semibold">Menu Tree</Label>
-			<Button size="sm" variant="outline" @click="$emit('select', null)">
-			+ Create New
-			</Button>
+			<div class="flex items-center gap-4">
+				<div class="flex items-center gap-2">
+					<Label>Show Inactive</Label>
+					<input
+						type="checkbox"
+						id="showInactive"
+						class="form-checkbox"
+						:checked="showInactive"
+						@change="handleToggle"
+					/>
+					<!--
+						:model-value="props.showInactive"
+						@update:modelValue="emit('toggle-inactive', $event)"
+						@change="$emit('toggle-inactive', $event.target.checked)"
+					-->
+				</div>
+				<Button size="sm" variant="outline" @click="$emit('select', null)">
+					+ Create New
+				</Button>
+			</div>
 		</div>
 
 		<Separator />
@@ -35,7 +65,12 @@
 					>
 					<div class="flex items-center gap-2">
 						<ChevronIcon :open="open" />
-						<span class="truncate text-sm">{{ menu.label }}</span>
+						<span
+							class="truncate text-sm"
+							:class="{'opacity-50 italic': !menu.is_active}"
+						>
+							{{ menu.label }}
+						</span>
 					</div>
 					</Button>
 				</CollapsibleTrigger>
@@ -53,8 +88,12 @@
 							class="w-full justify-start px-2 py-1 text-left"
 						>
 							<div class="flex items-center gap-2">
-							<ChevronIcon :open="false" class="opacity-30" />
-							<span class="truncate text-sm">{{ child.label }}</span>
+								<ChevronIcon :open="false" class="opacity-30" />
+								<span class="truncate text-sm"
+									:class="{'opacity-50 italic': !child.is_active}"
+								>
+									{{ child.label }}
+								</span>
 							</div>
 						</Button>
 					</li>

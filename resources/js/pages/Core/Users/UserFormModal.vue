@@ -5,6 +5,7 @@
 	import Button from '@/components/ui/button/Button.vue'
 	import CheckboxGroup from '@/components/ui/checkbox/CheckboxGroup.vue'
 	import Select from '@/components/ui/dropdown-menu/DropdownMenu.vue'
+	import RoleDropdownSelector from '@/pages/Core/Users/RoleDropdownSelector.vue'
 	import { useUsers } from '@/composables/useUsers'
 	import type { User, Role, Permission } from '@/types'
 
@@ -139,6 +140,14 @@
 					multiple
 					placeholder="Select roles"
 					:error="errors.roleIds"
+				/>
+
+				<RoleDropdownSelector
+					v-model="form.roleIds"
+					:roles="(props.roles ?? []).map(r => ({ label: r.name, value: r.id }))"
+					:multiple="true"
+					:disabled="false"
+					placeholder="Select Role(s)"
 				/>
 
 				<div class="space-y-2">

@@ -3,15 +3,27 @@ import { route } from 'ziggy-js';
 import { resolveIcon } from '@/utils/icons';
 
 // Recursively filters the menu tree based on user permission names
-export function filterMenusByPermission(menus: Menu[], allowed: string[] = []): Menu[] {
+export function filterMenusByPermission(menus: Menu[], allowed: string[] = [], showInactive = false): Menu[] {
+	// console.log('menus', menus)
+
+	// if (!Array.isArray(menus)) {
+	// 	console.warn('Expected array, got:', menus)
+	// 	return []
+	// }
+
 	return menus
 		.filter(menu => {
 			const perms = menu.permissions ?? [];
-			return perms.every(p => allowed.includes(p.name))
+			const isAllowed = perms.length === 0 || perms.every(p => allowed.includes(p.name));
+			const isActive = showInactive || menu.is_active;
+			return isAllowed && isActive;
+			// return perms.every(p => allowed.includes(p.name))
+			// console.log('pperm/', menu.permissions)
+			// return !perms || allowed.includes(menu.permissions);
 		})
 		.map(menu => ({
 			...menu,
-			children: filterMenusByPermission(menu.children ?? [], allowed),
+			children: filterMenusByPermission(menu.children ?? [], allowed, showInactive),
 		}));
 }
 

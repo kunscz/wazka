@@ -18,8 +18,13 @@ class MenuController extends Controller
         return Inertia::render('Core/Menus/Index');
     }
 
-    public function tree()
+    public function tree(Request $request)
     {
+        // $showInactive = $request->boolean('show_inactive', false);
+
+        // $menus = $this->menus->getTree($showInactive);
+
+        // return response()->json($menus);
         return response()->json($this->menus->getTree());
     }
 

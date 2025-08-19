@@ -27,7 +27,7 @@ class MenuCacheService
         }
 
         return Cache::remember($this->cacheKey, now()->addMinutes($this->ttlMinutes), function () {
-            return Menu::with('children')
+            return Menu::withFullTree()
                 ->whereNull('parent_id')
                 ->orderBy('sort_order')
                 ->get();

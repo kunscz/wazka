@@ -12,17 +12,24 @@ class MenuService
    /**
     * Build nested menu tree with children
    */
-   public function getTree(): Collection
+   public function getTree(bool $includeInactive = false): Collection
    {
       // return Menu::with('children')
       //    ->whereNull('parent_id')
       //    ->orderBy('sort_order')
       //    ->get();
+      // $menus = app(MenuCacheService::class)->get();
+
+      // if (!$includeInactive) {
+      //    $menus = $menus->filter(fn($menu) => $menu->is_active);
+      // }
+      
+      // return $menus;
       return app(MenuCacheService::class)->get();
    }
 
    /**
-    * Create menu from validated request input
+    * Create menu from validated request input 
    */
    public function createFromRequest(Request $request): Menu
    {

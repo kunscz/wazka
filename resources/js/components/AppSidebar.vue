@@ -18,7 +18,6 @@ const navItems= ref<NavItem[]>([]);
 
 onMounted(async () => {
     await menuStore.fetchMenus();
-    // console.log('awaitMenu', menuStore)
     const mapped = mapMenusToNavItems(menuStore.filteredMenus);
     navItems.value = mapped.map(item => ({
         ...item,
