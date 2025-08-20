@@ -18,10 +18,10 @@
 		// menus.value = await fetchMenuTree()
 
 		const result = await fetchMenuTree()
-		console.log('typeof: ', typeof(result))
+		// console.log('typeof: ', typeof(result))
 
 		menus.value = Array.isArray(result) ? result : []
-		console.log('MenuTree:', menus.value)
+		// console.log('MenuTree:', menus.value)
 	}
 
 	// const filteredMenus = computed(() => {

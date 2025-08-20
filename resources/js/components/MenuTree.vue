@@ -8,11 +8,18 @@
 	import CollapsibleTrigger from '@/components/ui/collapsible/CollapsibleTrigger.vue'
 	import CollapsibleContent from '@/components/ui/collapsible/CollapsibleContent.vue'
 	import { MenuNode } from '@/types/MenuNode'
+import ToggleSwitch from './ui/toggle/ToggleSwitch.vue'
+import ToggleIcon from './ui/icon/ToggleIcon.vue'
+import { computed } from 'vue'
 
 	const props = defineProps<{
 		menus: MenuNode[]
 		showInactive: boolean
 	}>()
+
+	const tooltipText = computed(() => {
+		return props.showInactive ? 'Hide inactive menus' : 'Show inactive menus'
+	})
 
 	const handleToggle = (event: Event) => {
 		const target = event.target as HTMLInputElement
@@ -31,19 +38,35 @@
 			<Label class="text-lg font-semibold">Menu Tree</Label>
 			<div class="flex items-center gap-4">
 				<div class="flex items-center gap-2">
-					<Label>Show Inactive</Label>
-					<input
+					<!-- <Label>Show Inactive</Label> -->
+					<!-- <input
 						type="checkbox"
 						id="showInactive"
 						class="form-checkbox"
 						:checked="showInactive"
 						@change="handleToggle"
-					/>
+					/> -->
 					<!--
 						:model-value="props.showInactive"
 						@update:modelValue="emit('toggle-inactive', $event)"
 						@change="$emit('toggle-inactive', $event.target.checked)"
 					-->
+					<!-- <ToggleSwitch
+						:model-value="props.showInactive"
+						label="Show Inactive"
+						id="showInactive"
+						@update:modelValue="emit('toggle-inactive', $event)"
+					/> -->
+					<ToggleIcon
+						:model-value="props.showInactive"
+						iconOn="Eye"
+						iconOff="EyeOff"
+						:size="4"
+						color="currentColor"
+						class="cursor-pointer"
+						:tooltip="tooltipText"
+						@update:modelValue="emit('toggle-inactive', $event)"
+					/>
 				</div>
 				<Button size="sm" variant="outline" @click="$emit('select', null)">
 					+ Create New
