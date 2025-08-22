@@ -8,7 +8,7 @@ import { buildTree } from '@/utils/buildMenuTree';
 export const useMenuStore = defineStore('menu', {
 	state: () => ({
 		rawMenus: [] as Menu[],
-		filteredMenus: [] as Menu[],
+		// filteredMenus: [] as Menu[],
 		menuMap: {} as Record<number, Menu>,
 		showInactive: false,
 	}),

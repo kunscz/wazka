@@ -14,6 +14,9 @@
 	import Separator from '@/components/ui/separator/Separator.vue'
 	import ComboboxInput from './ui/combobox/ComboboxInput.vue'
 	import AutocompleteInput from '@/components/ui/autocomplete/AutocompleteInput.vue'
+import AsyncIcon from './ui/icon/AsyncIcon.vue'
+import IconPicker from './ui/icon/IconPicker.vue'
+import IconGridPicker from './ui/icon/IconGridPicker.vue'
 
 	const props = defineProps<{
 		menu: MenuNode | null
@@ -22,7 +25,7 @@
 
 	const emit = defineEmits<{ (e: 'saved'): void }>()
 
-	const { createMenu, updateMenu } = useMenus()
+	const { createMenu, updateMenu, deleteMenu } = useMenus()
 	const { fetchPermissions, attachPermissionToMenu } = usePermissions()
 	const { fetchRoutes } = useRoutes()
 
@@ -114,12 +117,25 @@
 	})
 	
 	const handleSubmit = async () => {
-	if (props.menu?.id) {
-		await updateMenu(props.menu.id, form)
-	} else {
-		await createMenu(form)
+		if (!form.label.trim()) {
+			alert('Menu label is required.')
+			return
+		}
+
+		if (props.menu?.id) {
+			await updateMenu(props.menu.id, form)
+		} else {
+			await createMenu(form)
+		}
+		emit('saved')
 	}
-	emit('saved')
+
+	const handleDelete = async () => {
+		if (!props.menu?.id) return
+		if (confirm(`Are you sure you want to delete the menu "${props.menu.label}"?`)) {
+			await deleteMenu(props.menu.id)
+			emit('saved')
+		}
 	}
 
 	const handleAttachPermission = async () => {
@@ -167,23 +183,36 @@
 			</div>
 
 			<div>
-			<Label for="url">External URL</Label>
-			<Input id="url" v-model="form.url" placeholder="Optional external link" />
+				<Label for="url">External URL</Label>
+				<Input id="url" v-model="form.url" placeholder="Optional external link" />
 			</div>
 
 			<div>
-			<Label for="icon">Icon</Label>
-			<Input id="icon" v-model="form.icon" placeholder="Lucide icon name (e.g. ListTree)" />
+				<!-- <Label for="icon">Icon</Label>
+				<Input id="icon" v-model="form.icon" placeholder="Lucide icon name (e.g. ListTree)" /> -->
+				<!-- <AsyncIcon :name="form.icon" :size="5" /> -->
+				<!-- <IconPicker
+					v-model="form.icon"
+					placeholder="e.g. Settings, Folder, ListTree"
+					tooltip="Lucide icon name"
+					class="mt-2"
+				/> -->
+				<IconGridPicker
+					v-model="form.icon"
+					:size="5"
+					tooltip="Browse Lucide icons visually"
+					class="mt-2"
+				/>
 			</div>
 
 			<div>
-			<Label for="sort">Sort Order</Label>
-			<Input id="sort" type="number" v-model.number="form.sort_order" />
+				<Label for="sort">Sort Order</Label>
+				<Input id="sort" type="number" v-model.number="form.sort_order" />
 			</div>
 
 			<div class="flex items-center gap-2 mt-2">
-			<Checkbox id="active" v-model="form.is_active" />
-			<Label for="active">Active</Label>
+				<Checkbox id="active" v-model="form.is_active" />
+				<Label for="active">Active</Label>
 			</div>
 
 			<!-- <div>
@@ -216,6 +245,10 @@
 			{{ props.menu ? 'Update Menu' : 'Create Menu' }}
 			</Button>
 		</div>
+		<Button variant="destructive"
+			class="w-full"
+			@click="handleDelete"
+		>Delete Menu</Button>
 
 		<Separator />
 

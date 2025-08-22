@@ -7,17 +7,24 @@ const iconCache = new Map<string, LucideIcon>();
 type LucideModule = Record<string, LucideIcon>
 
 export async function resolveIcon(name: string): Promise<LucideIcon> {
+
    if (iconCache.has(name)) return iconCache.get(name)!;
 
    try {
       const mod = await import('lucide-vue-next') as unknown as LucideModule
-      const icon = mod[name] ?? mod.Folder;
+      const normalizedName = name.trim().replace(/\s+/g, '');
+      const icon = mod[normalizedName] ?? mod.Folder;
 
-      iconCache.set(name, icon)
+      // if (!mod[name]) {
+      //    console.warn(`Icon "${name}" not found in lucide-vue-next. Using fallback.`)
+      // }
 
-      if (!mod[name]) {
-         console.warn('Icon "${name}" not found in lucide-vue-next. Using fallback.')
+      if (!(normalizedName in mod)) {
+         console.warn(`Icon "${normalizedName}" not found in lucide-vue-next. Using fallback.`)
       }
+
+      // iconCache.set(name, icon)
+      iconCache.set(normalizedName, icon);
 
       return icon;
 
