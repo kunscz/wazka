@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
 {
+    protected $fillable = [
+        "label",
+        "route_name",
+        "url",
+        "icon",
+        "sort_order",
+        "parent_id",
+        "is_active",
+        "is_manual"
+    ];
+
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'menu_permission');

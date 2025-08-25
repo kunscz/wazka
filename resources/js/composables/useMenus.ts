@@ -16,16 +16,16 @@ export function useMenus() {
 	}
 
 	const createMenu = async (payload: Partial<MenuNode>) => {
-		return await window.axios.post('/api/menus', payload)
+		return await window.axios.post('/api/core/menus', payload)
 	}
 
 	const updateMenu = async (id: number, payload: Partial<MenuNode>) => {
-		const res = await window.axios.put(`/api/menus/${id}`, payload)
+		const res = await window.axios.put(`/api/core/menus/${id}`, payload)
 		return res.data;
 	}
 
 	const deleteMenu = async (id: number) => {
-		const res = await window.axios.delete(`/api/menus/${id}`)
+		const res = await window.axios.delete(`/api/core/menus/${id}`)
 		return res.data;
 	}
 

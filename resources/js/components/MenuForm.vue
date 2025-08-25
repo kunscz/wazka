@@ -122,6 +122,12 @@ import IconGridPicker from './ui/icon/IconGridPicker.vue'
 			return
 		}
 
+		console.log('Submitting form:', form)
+		// set parent_id from selected parent object
+		form.parent_id = form.parent?.id ?? null
+
+		console.log('is menu has id?', props.menu?.id);
+		// create or update
 		if (props.menu?.id) {
 			await updateMenu(props.menu.id, form)
 		} else {

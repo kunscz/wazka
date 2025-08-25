@@ -68,7 +68,7 @@ import { computed } from 'vue'
 						@update:modelValue="emit('toggle-inactive', $event)"
 					/>
 				</div>
-				<Button size="sm" variant="outline" @click="$emit('select', null)">
+				<Button size="sm" variant="outline" @click="$emit('select', null)" class="cursor-pointer">
 					+ Create New
 				</Button>
 			</div>
@@ -83,7 +83,7 @@ import { computed } from 'vue'
 					<Button
 					variant="ghost"
 					size="sm"
-					class="w-full justify-start px-2 py-1 text-left"
+					class="w-full justify-start px-2 py-1 text-left cursor-pointer"
 					@click="$emit('select', menu)"
 					>
 					<div class="flex items-center gap-2">
@@ -108,7 +108,7 @@ import { computed } from 'vue'
 						<Button
 							variant="ghost"
 							size="sm"
-							class="w-full justify-start px-2 py-1 text-left"
+							class="w-full justify-start px-2 py-1 text-left cursor-pointer"
 						>
 							<div class="flex items-center gap-2">
 								<ChevronIcon :open="false" class="opacity-30" />

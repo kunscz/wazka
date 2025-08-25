@@ -11,6 +11,9 @@ Route::middleware(['auth:sanctum'])->prefix('core')->name('core.')->group(functi
     // 📂 Menu Routes
     Route::get('/menus', [MenuController::class, 'tree'])->name('menus.tree');
     Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
+    // Route::post('/menus', function() {
+    //     return response()->json(['message' => 'Menu creation is disabled.'], 403);
+    // })->name('menus.store');
     Route::put('/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
     Route::delete('/menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
     Route::get('/permissions', function () {
