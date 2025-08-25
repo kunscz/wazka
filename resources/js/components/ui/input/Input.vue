@@ -7,6 +7,15 @@ const props = defineProps<{
   defaultValue?: string | number
   modelValue?: string | number
   class?: HTMLAttributes['class']
+  error?: string
+  label?: string
+  placeholder?: string
+  required?: boolean
+  type?: 'text' | 'email' | 'password' | 'number'
+  disabled?: boolean
+  readonly?: boolean
+  autocomplete?: string
+  autofocus?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -19,7 +28,10 @@ const modelValue = useVModel(props, 'modelValue', emits, {
 })
 </script>
 
-<template>
+<!-- <template>
+  <div v-if="error" class="text-sm text-destructive mt-1">
+    {{ error }}
+  </div>
   <input
     v-model="modelValue"
     data-slot="input"
@@ -30,4 +42,29 @@ const modelValue = useVModel(props, 'modelValue', emits, {
       props.class,
     )"
   >
+</template> -->
+
+<template>
+  <div class="space-y-1">
+    <label v-if="props.label" class="text-sm font-medium">
+      {{ props.label }}
+      <span v-if="props.required" class="text-red-500">*</span>
+    </label>
+
+    <input
+      v-model="modelValue"
+      :placeholder="props.placeholder"
+      :aria-invalid="!!props.error"
+      :required="props.required"
+      :class="cn(
+        'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+      'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+      'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
+        props.error && 'border-destructive ring-destructive/30',
+        props.class
+      )"
+    />
+
+    <p v-if="props.error" class="text-sm text-destructive">{{ props.error }}</p>
+  </div>
 </template>

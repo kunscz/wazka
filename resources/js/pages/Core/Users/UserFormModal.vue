@@ -57,6 +57,7 @@
 			errors.value.roleIds = 'At least one role must be selected.'
 		}
 
+		console.log('Validation errors:', errors.value);
 		return Object.keys(errors.value).length === 0
 	}
 
@@ -81,6 +82,7 @@
 	)
 
 	const handleSubmit = async () => {
+		console.log('Submitting form with data:', form.value);
 		if (!validateForm()) return
 
 		isSubmitting.value = true
@@ -88,6 +90,7 @@
 			if (isEditMode.value && props.user) {
 				await updateUser(props.user.id, form.value)
 			} else {
+				console.log('Creating user with data:', form.value);
 				await createUser(form.value)
 			}
 			emit('saved')
@@ -166,7 +169,7 @@
 			<template #footer>
 				<div class="flex justify-end space-x-2 mt-6">
 				<Button variant="ghost" @click="emit('close')">Cancel</Button>
-				<Button :loading="isSubmitting" @click="handleSubmit">
+				<Button :loading="isSubmitting" @click="handleSubmit" class="cursor-pointer">
 					{{ isEditMode ? 'Update' : 'Create' }}
 				</Button>
 				</div>
