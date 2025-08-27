@@ -1,7 +1,7 @@
 <script setup lang="ts">
 	import { ref, onMounted, onUnmounted } from 'vue'
 	import Dialog from '@/components/ui/dialog/Dialog.vue' // Optional: if using existing dialog primitive
-	import Button from '@/components/ui/button/Button.vue'
+	import { Button } from '@/components/ui/button'
 
 	const props = defineProps<{
 	title?: string
@@ -47,7 +47,7 @@
 			<slot name="title">
 				<h2 class="text-lg font-semibold">{{ title || 'Modal' }}</h2>
 			</slot>
-			<Button icon appearance="ghost" @click="emit('close')" aria-label="Close Modal">
+			<Button icon appearance="ghost" @click="emit('close')" aria-label="Close Modal" class="cursor-pointer w-5 h-5 p-0">
 				✕
 			</Button>
 			</header>

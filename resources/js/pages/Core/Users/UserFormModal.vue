@@ -1,13 +1,14 @@
 <script setup lang="ts">
-	import { ref, watch, computed } from 'vue'
-	import Modal from '@/components/ui/modal/Modal.vue'
-	import Input from '@/components/ui/input/Input.vue'
-	import Button from '@/components/ui/button/Button.vue'
-	import CheckboxGroup from '@/components/ui/checkbox/CheckboxGroup.vue'
-	import Select from '@/components/ui/dropdown-menu/DropdownMenu.vue'
-	import RoleDropdownSelector from '@/pages/Core/Users/RoleDropdownSelector.vue'
-	import { useUsers } from '@/composables/useUsers'
-	import type { User, Role, Permission } from '@/types'
+	import { ref, watch, computed } from 'vue';
+	import Modal from '@/components/ui/modal/Modal.vue';
+	import InputError from '@/components/InputError.vue';
+	import { Input } from '@/components/ui/input';
+	import { Button } from '@/components/ui/button';
+	import CheckboxGroup from '@/components/ui/checkbox/CheckboxGroup.vue';
+	import Select from '@/components/ui/dropdown-menu/DropdownMenu.vue';
+	import RoleDropdownSelector from '@/pages/Core/Users/RoleDropdownSelector.vue';
+	import { useUsers } from '@/composables/useUsers';
+	import type { User, Role, Permission } from '@/types';
 
 	const props = defineProps<{
 		user?: User
@@ -100,6 +101,8 @@
 			isSubmitting.value = false
 		}
 	}
+
+	console.log('userprops', props)
 	</script>
 
 <template>
@@ -109,67 +112,68 @@
 				{{ isEditMode ? 'Edit User' : 'Create User' }}
 			</template>
 
-			<div class="space-y-4" v-if="isReady">
-				<Input
-					v-model="form.name"
-					label="Name"
-					placeholder="e.g. Jane Doe"
-					required
-					:error="errors.name"
-				/>
+			<form id="userForm" @submit.prevent="handleSubmit" class="grid grid-cols-1 gap-6" v-if="isReady">
+				<div class="grid gap-2">
+					<Input
+						v-model="form.name"
+						label="Name"
+						placeholder="e.g. Jane Doe"
+						required
+						:error="errors.name"
+					/>
+					<InputError :message="errors.name" />
+				</div>
 
-				<Input
-					v-model="form.email"
-					label="Email"
-					placeholder="e.g. jane@example.com"
-					type="email"
-					required
-					:error="errors.email"
-				/>
-
-				<Input
-					v-model="form.password"
-					label="Password"
-					placeholder="Enter password"
-					type="password"
-					:required="!isEditMode"
-					:error="errors.password"
-				/>
-
-				<Select
-					v-model="form.roleIds"
-					:options="(props.roles ?? []).map(r => ({ label: r.name, value: r.id }))"
-					label="Roles"
-					multiple
-					placeholder="Select roles"
-					:error="errors.roleIds"
-				/>
-
-				<RoleDropdownSelector
-					v-model="form.roleIds"
-					:roles="(props.roles ?? []).map(r => ({ label: r.name, value: r.id }))"
-					:multiple="true"
-					:disabled="false"
-					placeholder="Select Role(s)"
-				/>
-
-				<div class="space-y-2">
-				<label class="text-sm font-medium">Permissions</label>
-				<div class="grid grid-cols-2 gap-2">
-					<CheckboxGroup
-						v-model="form.permissionIds"
-						:options="(props.permissions ?? []).map(p => ({ label: p.name, value: p.id }))"
+				<div class="grid gap-2">
+					<Input
+						v-model="form.email"
+						label="Email"
+						placeholder="e.g. jane@example.com"
+						type="email"
+						required
+						:error="errors.email"
 					/>
 				</div>
+
+				<div class="grid gap-2">
+					<Input
+						v-model="form.password"
+						label="Password"
+						placeholder="Enter password"
+						type="password"
+						:required="!isEditMode"
+						:error="errors.password"
+					/>
 				</div>
-			</div>
+
+				<div class="grid gap-2">
+					<RoleDropdownSelector
+						v-model="form.roleIds"
+						:roles="(props.roles ?? []).map(r => ({ label: r.name, value: r.id }))"
+						:multiple="true"
+						:disabled="false"
+						class="cursor-pointer"
+						placeholder="Select Role(s)"
+					/>
+				</div>
+
+				<div class="grid gap-2">
+					<label class="text-sm font-medium">Permissions</label>
+					<div class="grid grid-cols-2 gap-2">
+						<CheckboxGroup
+							v-model="form.permissionIds"
+							:options="(props.permissions ?? []).map(p => ({ label: p.name, value: p.id }))"
+						/>
+					</div>
+				</div>
+			</form>
 
 			<div v-else class="text-sm text-muted">Loading form data... </div>
 
 			<template #footer>
 				<div class="flex justify-end space-x-2 mt-6">
-				<Button variant="ghost" @click="emit('close')">Cancel</Button>
-				<Button :loading="isSubmitting" @click="handleSubmit" class="cursor-pointer">
+				<Button variant="ghost" @click="emit('close')" class="cursor-pointer">Cancel</Button>
+				<Button :loading="isSubmitting" form="userForm" @click="handleSubmit" class="cursor-pointer">
 					{{ isEditMode ? 'Update' : 'Create' }}
 				</Button>
 				</div>
