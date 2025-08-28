@@ -5,6 +5,7 @@ namespace App\Modules\Core\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -66,18 +67,20 @@ class UserController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'roles' => 'array',
-            'permissions' => 'array',
+            'roleIds' => 'array',
+            'permissionIds' => 'array',
         ]);
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+        DB::transaction(function () use ($data, &$user) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => filled($data['password']) ? bcrypt($data['password']) : null,
+            ]);
 
-        $user->assignRole($data['roles'] ?? []);
-        $user->syncPermissions($data['permissions'] ?? []);
+            $user->assignRole($data['roleIds'] ?? []);
+            $user->syncPermissions($data['permissionIds'] ?? []);
+        });
 
         return response()->json(['message' => 'User created', 'user' => $user]);
     }
@@ -87,18 +90,24 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => 'sometimes|string',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6',
-            'roles' => 'array',
-            'permissions' => 'array',
+            'password' => 'nullable|string|min:6|confirmed',
+            'roleIds' => 'array',
+            'permissionIds' => 'array',
         ]);
+
+        if (filled($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
 
         if (isset($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         }
 
         $user->update($data);
-        $user->syncRoles($data['roles'] ?? []);
-        $user->syncPermissions($data['permissions'] ?? []);
+        $user->syncRoles($data['roleIds'] ?? []);
+        $user->syncPermissions($data['permissionIds'] ?? []);
 
         return response()->json(['message' => 'User updated', 'user' => $user]);
     }

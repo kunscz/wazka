@@ -21,8 +21,10 @@
 		name: '',
 		email: '',
 		password: '',
+		password_confirmation: '',
 		roleIds: [] as number[],
 		permissionIds: [] as number[],
+		errors: {} as Record<string, string>,
 	})
 
 	const emit = defineEmits<{
@@ -36,6 +38,10 @@
 	const isEditMode = computed(() => !!props.user)
 	const errors = ref<Partial<Record<keyof typeof form.value, string>>>({})
 	const isReady = computed(() => !!props.roles && !!props.permissions)
+	const showConfirmation = computed( () => form.value.password?.length > 0 )
+	const passwordMismatch = computed(() => 
+		form.value.password && form.value.password !== form.value.password_confirmation
+	)
 
 	const validateForm = (): boolean => {
 		errors.value = {}
@@ -56,6 +62,10 @@
 
 		if (form.value.roleIds.length === 0) {
 			errors.value.roleIds = 'At least one role must be selected.'
+		}
+
+		if (form.value.password && form.value.password !== form.value.password_confirmation) {
+			errors.value.password_confirmation = 'Password do not match.'
 		}
 
 		console.log('Validation errors:', errors.value);
@@ -89,18 +99,24 @@
 		isSubmitting.value = true
 		try {
 			if (isEditMode.value && props.user) {
-				await updateUser(props.user.id, form.value)
+				const result = await updateUser(props.user.id, form.value)
+				console.log('Update result:', result);
 			} else {
 				console.log('Creating user with data:', form.value);
 				await createUser(form.value)
 			}
 			emit('saved')
-		} catch (error) {
-			console.error('User save failed:', error)
+		} catch (error: any) {
+			console.error('User save failed:', error.response)
+			errors.value = error?.response?.data?.messages || { general: 'An error occurred. Please try again.' }
 		} finally {
 			isSubmitting.value = false
 		}
 	}
+
+	watch(() => form.value.permissionIds, (val) => {
+		console.log('Permissions changed:', val)
+	}, { deep: true })
 
 	console.log('userprops', props)
 	</script>
@@ -133,6 +149,7 @@
 						required
 						:error="errors.email"
 					/>
+					<InputError :message="errors.email" />
 				</div>
 
 				<div class="grid gap-2">
@@ -143,7 +160,18 @@
 						type="password"
 						:required="!isEditMode"
 						:error="errors.password"
+						autocomplete="new-password"
 					/>
+				</div>
+
+				<div v-if="form.password">
+					<Input
+						v-model="form.password_confirmation"
+						type="password"
+						label="Confirm Password"
+						placeholder="Confirm Password"
+					/>
+					<InputError :message="errors.password_confirmation" />
 				</div>
 
 				<div class="grid gap-2">
