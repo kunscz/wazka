@@ -11,12 +11,18 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::with('permissions')->get();
+        // $roles = Role::with('permissions')->get();
+
         // return response()->json($roles);
-        return Inertia::render('Core/Roles/RolePage', 
-    
-            [
-                'roles' => $roles,
+        return Inertia::render('Core/Roles/RolePage', [
+                'roles' => Role::with('permissions')->get()->map(fn ($role) => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'permissions' => $role->permissions,
+                    'created_at' => $role->created_at,
+                    'updated_at' => $role->updated_at,
+                ]),
+                // 'roles' => $roles,
                 'permissions' => \App\Modules\Core\Models\Permission::all()->map(function ($perm) {
                     return [
                         'id' => $perm->id,
@@ -39,9 +45,10 @@ class RoleController extends Controller
         $data = $request->validate([
             'name' => 'required|string|unique:roles,name',
             'permissions' => 'array',
+            'guard_name' => 'string',
         ]);
 
-        $role = Role::create(['name' => $data['name']]);
+        $role = Role::create(['name' => $data['name'], 'guard_name' => $data['guard_name'] ?? 'web']);
         $role->syncPermissions($data['permissions'] ?? []);
 
         return response()->json(['message' => 'Role created', 'role' => $role]);

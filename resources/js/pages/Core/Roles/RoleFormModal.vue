@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, reactive } from 'vue'
 import Modal from '@/components/ui/modal/Modal.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Button from '@/components/ui/button/Button.vue'
@@ -9,55 +9,71 @@ import type { Role, Permission } from '@/types'
 import { useRoles } from '@/composables/useRoles'
 
 const props = defineProps<{
-  role?: Role
+	role?: Role
 }>()
 
 const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
-const form = ref({ name: '', guard: '', permissionIds: [] as number[] })
+// const form = ref({ name: '', guard: '', permissionIds: [] as number[] })
+const form = reactive({
+	name: '',
+	guard: '',
+	permissionIds: [] as number[]
+})
 const availablePermissions = ref<Permission[]>([])
 
 const {
-  fetchPermissions,
-  createRole,
-  updateRole,
-  syncRolePermissions
+	fetchPermissions,
+	createRole,
+	updateRole,
+	syncRolePermissions
 } = useRoles()
 
 onMounted(async () => {
-  availablePermissions.value = await fetchPermissions()
+	availablePermissions.value = await fetchPermissions()
 
-  if (props.role) {
-    form.value.name = props.role.name
-    form.value.guard = props.role.guard_name
-    form.value.permissionIds = props.role.permissions.map(p => p.id)
-  }
+	if (props.role) {
+		form.name = props.role.name
+		form.guard = props.role.guard_name
+		form.permissionIds = props.role.permissions.map(p => p.id)
+	}
+
+	console.log('Available permissions loaded:', form.permissionIds)
 })
 
 watch(() => props.role, (role) => {
-  if (role) {
-    form.value.name = role.name
-    form.value.guard = role.guard_name
-    form.value.permissionIds = role.permissions.map(p => p.id)
-  } else {
-    form.value = { name: '', guard: '', permissionIds: [] }
-  }
+	if (role) {
+		form.name = role.name
+		form.guard = role.guard_name
+		form.permissionIds = role.permissions.map(p => p.id)
+	} else {
+		// form = { name: '', guard: '', permissionIds: [] }
+	}
+})
+
+watch(() => form.permissionIds, (newVal) => {
+	console.log('Permission IDs updated:', newVal)
 })
 
 const handleSubmit = async () => {
-  const payload = { name: form.value.name, guard_name: form.value.guard }
+	console.log('Submitting form with data:', form)
+	const payload = {
+		name: form.name,
+		guard_name: form.guard,
+		permissions: form.permissionIds
+	}
 
-  let roleId = props.role?.id
+	let roleId = props.role?.id
 
-  if (roleId) {
-    await updateRole(roleId, payload)
-  } else {
-    const created = await createRole(payload)
-    roleId = created.id
-  }
+	if (roleId) {
+		await updateRole(roleId, payload)
+	} else {
+		const created = await createRole(payload)
+		roleId = created.id
+	}
 
-  await syncRolePermissions(roleId!, form.value.permissionIds)
-  emit('saved')
+	await syncRolePermissions(roleId!, form.permissionIds)
+	emit('saved')
 }
 </script>
 
@@ -83,8 +99,8 @@ const handleSubmit = async () => {
       </div>
 
       <div class="flex justify-end gap-2">
-        <Button appearance="ghost" @click="emit('close')">Cancel</Button>
-        <Button type="submit">{{ props.role ? 'Update' : 'Create' }}</Button>
+        <Button appearance="ghost" class="cursor-pointer" @click="emit('close')">Cancel</Button>
+        <Button class="cursor-pointer" type="submit">{{ props.role ? 'Update' : 'Create' }}</Button>
       </div>
     </form>
   </Modal>

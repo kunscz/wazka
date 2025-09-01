@@ -14,6 +14,7 @@ export function useRoles() {
   }
 
   const createRole = async (payload: RolePayload & { guard_name: string }) => {
+    console.log('Creating role with payload:', payload);
     const { data } = await axios.post('/api/core/roles', payload)
     return data
   }
@@ -26,9 +27,12 @@ export function useRoles() {
   }
 
   const syncRolePermissions = async (id: number, permissionIds: number[]) => {
-    await axios.post(`/api/core/roles/${id}/permissions`, {
+    await axios.post(`/api/core/roles/${id}/sync-permissions`, {
       permissions: permissionIds
     })
+    // await axios.post(`/api/core/roles/${id}/permissions`, {
+    //   permissions: permissionIds
+    // })
   }
 
   const deleteRole = async (id: number) => {

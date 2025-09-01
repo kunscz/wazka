@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Checkbox from '@/components/ui/checkbox/Checkbox.vue' // Assumes reusable checkbox component
+import {Checkbox} from '@/components/ui/checkbox' // Assumes reusable checkbox component
 
 import type { Permission } from '@/types'
 
@@ -14,8 +14,10 @@ const emit = defineEmits<{
 }>()
 
 const isSelected = (id: number) => props.modelValue.includes(id)
+console.log('Current selected permissions:', props.modelValue)
 
 const toggle = (id: number) => {
+  console.log('Toggling permission:', id)
   const updated = isSelected(id)
     ? props.modelValue.filter(pid => pid !== id)
     : [...props.modelValue, id]
@@ -32,8 +34,8 @@ const toggle = (id: number) => {
       class="flex items-start space-x-2"
     >
       <Checkbox
-        :checked="isSelected(perm.id)"
-        @change="toggle(perm.id)"
+        :model-value="isSelected(perm.id)"
+        @update:model-value="toggle(perm.id)"
         :aria-label="`Toggle ${perm.name} permission`"
       />
       <div>

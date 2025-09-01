@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoles } from '@/composables/useRoles'
 import type { Role } from '@/types'
 import Card from '@/components/ui/card/Card.vue'
-import Button from '@/components/ui/button/Button.vue'
+import { Button } from '@/components/ui/button'
 import RoleFormModal from './RoleFormModal.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 
@@ -14,30 +14,31 @@ const isModalOpen = ref(false)
 const selectedRole = ref<Role | null>(null)
 
 const loadRoles = async () => {
-  roles.value = await fetchRoles()
+	roles.value = await fetchRoles()
 }
 
 onMounted(loadRoles)
 
 const handleSaved = async () => {
-  isModalOpen.value = false
-  selectedRole.value = null
-  await loadRoles()
+	isModalOpen.value = false
+	selectedRole.value = null
+	await loadRoles()
 }
 
 const handleEdit = (role: Role) => {
-  selectedRole.value = role
-  isModalOpen.value = true
+	console.log('Editing role:', role);
+	selectedRole.value = role
+	isModalOpen.value = true
 }
 
 const handleCreate = () => {
-  selectedRole.value = null
-  isModalOpen.value = true
+	selectedRole.value = null
+	isModalOpen.value = true
 }
 
 const handleDelete = async (role: Role) => {
-  await deleteRole(role.id)
-  await loadRoles()
+	await deleteRole(role.id)
+	await loadRoles()
 }
 </script>
 
@@ -70,14 +71,14 @@ const handleDelete = async (role: Role) => {
 					<td class="px-4 py-2 font-medium">{{ role.name }}</td>
 					<td class="px-4 py-2">{{ role.guard_name }}</td>
 					<td class="px-4 py-2">
-					<span v-if="role.permissions.length">
-						{{ role.permissions.map(p => p.name).join(', ') }}
-					</span>
-					<span v-else class="text-muted-foreground italic">None</span>
+						<span v-if="role.permissions.length">
+							{{ role.permissions.map(p => p.name).join(', ') }}
+						</span>
+						<span v-else class="text-muted-foreground italic">None</span>
 					</td>
 					<td class="px-4 py-2 space-x-2">
-					<Button size="sm" variant="ghost" @click="handleEdit(role)">Edit</Button>
-					<Button size="sm" variant="ghost" @click="handleDelete(role)">Delete</Button>
+						<Button size="sm" variant="ghost" @click="handleEdit(role)">Edit</Button>
+						<Button size="sm" variant="ghost" @click="handleDelete(role)">Delete</Button>
 					</td>
 				</tr>
 			</tbody>
