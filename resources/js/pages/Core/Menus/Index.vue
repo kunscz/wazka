@@ -53,6 +53,7 @@
 	}
 
 	const handleSaved = async () => {
+		console.log('load menus after saved')
 		await loadMenus()
 		activeMenu.value = null
 	}

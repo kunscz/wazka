@@ -8,9 +8,9 @@
 	import CollapsibleTrigger from '@/components/ui/collapsible/CollapsibleTrigger.vue'
 	import CollapsibleContent from '@/components/ui/collapsible/CollapsibleContent.vue'
 	import { MenuNode } from '@/types/MenuNode'
-import ToggleSwitch from './ui/toggle/ToggleSwitch.vue'
-import ToggleIcon from './ui/icon/ToggleIcon.vue'
-import { computed } from 'vue'
+	import ToggleSwitch from './ui/toggle/ToggleSwitch.vue'
+	import ToggleIcon from './ui/icon/ToggleIcon.vue'
+	import { computed } from 'vue'
 
 	const props = defineProps<{
 		menus: MenuNode[]

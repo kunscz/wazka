@@ -10,13 +10,13 @@
 	import Input from '@/components/ui/input/Input.vue'
 	import Label from '@/components/ui/label/Label.vue'
 	import Checkbox from '@/components/ui/checkbox/Checkbox.vue'
-	import Button from '@/components/ui/button/Button.vue'
+	import {Button} from '@/components/ui/button'
 	import Separator from '@/components/ui/separator/Separator.vue'
 	import ComboboxInput from './ui/combobox/ComboboxInput.vue'
 	import AutocompleteInput from '@/components/ui/autocomplete/AutocompleteInput.vue'
-import AsyncIcon from './ui/icon/AsyncIcon.vue'
-import IconPicker from './ui/icon/IconPicker.vue'
-import IconGridPicker from './ui/icon/IconGridPicker.vue'
+	import AsyncIcon from './ui/icon/AsyncIcon.vue'
+	import IconPicker from './ui/icon/IconPicker.vue'
+	import IconGridPicker from './ui/icon/IconGridPicker.vue'
 
 	const props = defineProps<{
 		menu: MenuNode | null

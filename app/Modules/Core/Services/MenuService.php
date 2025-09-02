@@ -67,6 +67,8 @@ class MenuService
          'is_manual' => 'boolean',
       ]);
 
+      app(MenuCacheService::class)->forget();
+
       $menu->update($data);
 
       return $menu;
