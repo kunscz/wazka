@@ -77,9 +77,10 @@ class MenuService
    /**
     * Delete menu safely
    */
-   public function delete(Menu $menu): void
+   public function deleteFromRequest(Menu $menu)
    {
-      $menu->delete();
+      app(MenuCacheService::class)->forget();
+      $menu->delete($menu);
    }
 
    public function syncPermission(Menu $menu): void

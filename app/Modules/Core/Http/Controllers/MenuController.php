@@ -46,7 +46,7 @@ class MenuController extends Controller
 
     public function destroy(Menu $menu)
     {
-        $this->menus->delete($menu);
+        $this->menus->deleteFromRequest($menu);
         return response()->json(['message' => 'Menu deleted']);
     }
 
